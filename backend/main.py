@@ -27,7 +27,7 @@ def startup_event():
     tasks.check_expiries()
 
 @app.post("/api/signup", response_model=schemas.UserResponse)
-def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
+def signup(user: schemas.UserCreate, response: Response, db: Session = Depends(get_db)):
     db_user = db.query(models.User).filter(models.User.email == user.email).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -36,6 +36,16 @@ def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
+    
+    session_id = auth.create_session(db, new_user.id)
+    response.set_cookie(
+        key="session_id", 
+        value=session_id, 
+        httponly=True, 
+        samesite="lax",
+        secure=False,
+        max_age=7*24*3600
+    )
     return new_user
 
 @app.post("/api/login")

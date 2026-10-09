@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import api from '../api';
+import api, { getErrorMessage } from '../api';
 import { Sparkles, Loader2, Heart } from 'lucide-react';
 
 export default function Signup({ setUser }) {
@@ -17,12 +17,11 @@ export default function Signup({ setUser }) {
     
     try {
       await api.post('/signup', { email, password });
-      await api.post('/login', { email, password });
       const meRes = await api.get('/me');
       setUser(meRes.data);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.detail || 'Registration failed. Please try again.');
+      setError(getErrorMessage(err, 'Registration failed. Please try again.'));
     } finally {
       setLoading(false);
     }
