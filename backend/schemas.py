@@ -10,9 +10,16 @@ class UserResponse(BaseModel):
     id: int
     email: EmailStr
     created_at: datetime
+    session_id: Optional[str] = None
 
     class Config:
+        from_attributes = True
         orm_mode = True
+
+class LoginResponse(BaseModel):
+    message: str
+    user: UserResponse
+    session_id: str
 
 class DocumentBase(BaseModel):
     document_type: str

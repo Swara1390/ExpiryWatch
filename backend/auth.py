@@ -6,12 +6,21 @@ import models
 import secrets
 import datetime
 
-def verify_password(plain_password, hashed_password):
-    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    try:
+        if not plain_password or not hashed_password:
+            return False
+        plain_bytes = plain_password.encode('utf-8')
+        if len(plain_bytes) > 72:
+            return False
+        hash_bytes = hashed_password.encode('utf-8') if isinstance(hashed_password, str) else hashed_password
+        return bcrypt.checkpw(plain_bytes, hash_bytes)
+    except Exception:
+        return False
 
-def get_password_hash(password):
+def get_password_hash(password: str) -> str:
     salt = bcrypt.gensalt()
-    return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
+    return bcrypt.hashpw(password.encode('utf-8')[:72], salt).decode('utf-8')
 
 def create_session(db: Session, user_id: int):
     session_id = secrets.token_urlsafe(32)
@@ -23,6 +32,14 @@ def create_session(db: Session, user_id: int):
 
 def get_current_user(request: Request, db: Session = Depends(get_db)):
     session_id = request.cookies.get("session_id")
+    if not session_id:
+        auth_header = request.headers.get("Authorization")
+        if auth_header:
+            if auth_header.startswith("Bearer "):
+                session_id = auth_header[7:].strip()
+            else:
+                session_id = auth_header.strip()
+
     if not session_id:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
     

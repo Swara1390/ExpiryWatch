@@ -1,24 +1,24 @@
 # Dependencies
 node_modules/
 
-# Python
+# Python virtual environments
 venv/
 .venv/
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.pytest_cache/
 
-# Databases
-*.db
-*.db-shm
-*.db-wal
+# Python cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
 
 # Environment variables / secrets
 .env
 .env.*
 !.env.example
+
+# Local databases
+*.db
+*.db-shm
+*.db-wal
 
 # Build output
 dist/

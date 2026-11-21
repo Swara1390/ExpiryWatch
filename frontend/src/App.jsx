@@ -17,6 +17,7 @@ function App() {
         const res = await api.get('/me');
         setUser(res.data);
       } catch (err) {
+        localStorage.removeItem('session_id');
         setUser(null);
       } finally {
         setLoading(false);

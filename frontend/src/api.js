@@ -5,6 +5,14 @@ const api = axios.create({
   withCredentials: true,
 });
 
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('session_id');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export function getErrorMessage(err, defaultMessage = 'An error occurred. Please try again.') {
   if (err.response?.data?.detail) {
     const detail = err.response.data.detail;

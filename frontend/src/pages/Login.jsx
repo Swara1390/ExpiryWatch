@@ -16,9 +16,20 @@ export default function Login({ setUser }) {
     setLoading(true);
     
     try {
-      await api.post('/login', { email, password });
-      const meRes = await api.get('/me');
-      setUser(meRes.data);
+      const trimmedEmail = email.trim().toLowerCase();
+      const res = await api.post('/login', { email: trimmedEmail, password });
+      
+      const token = res.data?.session_id;
+      if (token) {
+        localStorage.setItem('session_id', token);
+      }
+      
+      if (res.data?.user) {
+        setUser(res.data.user);
+      } else {
+        const meRes = await api.get('/me');
+        setUser(meRes.data);
+      }
       navigate('/dashboard');
     } catch (err) {
       setError(getErrorMessage(err, 'Login failed. Please try again.'));

@@ -12,6 +12,7 @@ export default function Navbar({ user, setUser }) {
     } catch (e) {
       console.error(e);
     } finally {
+      localStorage.removeItem('session_id');
       setUser(null);
       navigate('/login');
     }
